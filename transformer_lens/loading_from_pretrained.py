@@ -257,6 +257,8 @@ OFFICIAL_MODEL_NAMES = [
     "google/gemma-2-27b-it",
     "google/gemma-3-270m",
     "google/gemma-3-270m-it",
+    "google/gemma-3-1b-pt",
+    "google/gemma-3-1b-it",
     "01-ai/Yi-6B",
     "01-ai/Yi-34B",
     "01-ai/Yi-6B-Chat",
@@ -715,6 +717,8 @@ MODEL_ALIASES = {
     "google/gemma-2-27b-it": ["gemma-2-27b-it"],
     "google/gemma-3-270m": ["gemma-3-270m"],
     "google/gemma-3-270m-it": ["gemma-3-270m-it"],
+    "google/gemma-3-1b-pt": ["gemma-3-1b-pt"],
+    "google/gemma-3-1b-it": ["gemma-3-1b-it"],
     "01-ai/Yi-6B": ["yi-6b", "Yi-6B"],
     "01-ai/Yi-34B": ["yi-34b", "Yi-34B"],
     "01-ai/Yi-6B-Chat": ["yi-6b-chat", "Yi-6B-Chat"],
@@ -1466,6 +1470,29 @@ def convert_hf_model_config(model_name: str, **kwargs: Any):
             "use_normalization_before_and_after": True,
             "use_qk_norm": True,
         }
+    elif official_model_name.startswith("google/gemma-3-1b"):
+        # Architecture for Gemma-3 1b-pt and Gemma-3 1b-it models
+        cfg_dict = {
+            "d_model": 1152,
+            "d_head": 256,  # Fixed for all Gemma models, not 288
+            "n_heads": 4,
+            "d_mlp": 6912,
+            "n_layers": 26,
+            "n_ctx": 32768,
+            "eps": 1e-06,
+            "d_vocab": 262144,
+            "act_fn": "gelu_pytorch_tanh",
+            "initializer_range": 0.02,
+            "normalization_type": "RMS",
+            "rotary_base": 1000000,
+            "positional_embedding_type": "rotary",
+            "use_attn_scale": True,
+            "n_key_value_heads": 1,
+            "gated_mlp": True,
+            "final_rms": True,
+            "use_normalization_before_and_after": True,
+            "use_qk_norm": True,
+        }
     elif official_model_name.startswith("google/gemma-2b"):
         # Architecture for Gemma 2b and Gemma 2b Instruct models
         cfg_dict = {
@@ -1530,7 +1557,7 @@ def convert_hf_model_config(model_name: str, **kwargs: Any):
             "n_key_value_heads": 4,
             "window_size": 4096,
             "use_local_attn": True,
-            "attn_types": ["global", "local"] * 21,  # Alternate global and local attn
+            "attn_types": ["global", "local"] * 21,
             "attn_scores_soft_cap": 50.0,
             "output_logits_soft_cap": 30.0,
             "gated_mlp": True,
