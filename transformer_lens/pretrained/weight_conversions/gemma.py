@@ -42,6 +42,15 @@ def convert_gemma_weights(gemma, cfg: HookedTransformerConfig):
         state_dict[f"blocks.{l}.attn._W_K"] = W_K
         state_dict[f"blocks.{l}.attn._W_V"] = W_V
 
+        # Load q_norm and k_norm if they exist (Gemma 3)
+        if cfg.use_qk_norm:
+            state_dict[f"blocks.{l}.attn.q_norm.w"] = gemma.model.layers[
+                l
+            ].self_attn.q_norm.weight
+            state_dict[f"blocks.{l}.attn.k_norm.w"] = gemma.model.layers[
+                l
+            ].self_attn.k_norm.weight
+
         state_dict[f"blocks.{l}.attn.b_Q"] = torch.zeros(cfg.n_heads, cfg.d_head, dtype=cfg.dtype)
         state_dict[f"blocks.{l}.attn._b_K"] = torch.zeros(
             cfg.n_key_value_heads, cfg.d_head, dtype=cfg.dtype

@@ -255,6 +255,8 @@ OFFICIAL_MODEL_NAMES = [
     "google/gemma-2-9b-it",
     "google/gemma-2-27b",
     "google/gemma-2-27b-it",
+    "google/gemma-3-270m",
+    "google/gemma-3-270m-it",
     "01-ai/Yi-6B",
     "01-ai/Yi-34B",
     "01-ai/Yi-6B-Chat",
@@ -711,6 +713,8 @@ MODEL_ALIASES = {
     "google/gemma-2-9b-it": ["gemma-2-9b-it"],
     "google/gemma-2-27b": ["gemma-2-27b"],
     "google/gemma-2-27b-it": ["gemma-2-27b-it"],
+    "google/gemma-3-270m": ["gemma-3-270m"],
+    "google/gemma-3-270m-it": ["gemma-3-270m-it"],
     "01-ai/Yi-6B": ["yi-6b", "Yi-6B"],
     "01-ai/Yi-34B": ["yi-34b", "Yi-34B"],
     "01-ai/Yi-6B-Chat": ["yi-6b-chat", "Yi-6B-Chat"],
@@ -790,6 +794,8 @@ def convert_hf_model_config(model_name: str, **kwargs: Any):
     # Load HuggingFace model config
     if "llama" in official_model_name.lower():
         architecture = "LlamaForCausalLM"
+    elif "gemma-3" in official_model_name.lower():
+        architecture = "Gemma3ForCausalLM"
     elif "gemma-2" in official_model_name.lower():
         architecture = "Gemma2ForCausalLM"
     elif "gemma" in official_model_name.lower():
@@ -1437,6 +1443,29 @@ def convert_hf_model_config(model_name: str, **kwargs: Any):
             "rotary_dim": hf_config.hidden_size // hf_config.num_attention_heads,
         }
 
+    elif official_model_name.startswith("google/gemma-3-270m"):
+        # Architecture for Gemma-3 270m and Gemma-3 270m Instruct models
+        cfg_dict = {
+            "d_model": 640,
+            "d_head": 256,
+            "n_heads": 4,
+            "d_mlp": 2048,
+            "n_layers": 18,
+            "n_ctx": 32768,
+            "eps": 1e-06,
+            "d_vocab": 262144,
+            "act_fn": "gelu_pytorch_tanh",
+            "initializer_range": 0.02,
+            "normalization_type": "RMS",
+            "rotary_base": 1000000,
+            "positional_embedding_type": "rotary",
+            "use_attn_scale": True,
+            "n_key_value_heads": 1,
+            "gated_mlp": True,
+            "final_rms": True,
+            "use_normalization_before_and_after": True,
+            "use_qk_norm": True,
+        }
     elif official_model_name.startswith("google/gemma-2b"):
         # Architecture for Gemma 2b and Gemma 2b Instruct models
         cfg_dict = {
@@ -1985,6 +2014,8 @@ def get_pretrained_state_dict(
         elif cfg.original_architecture == "GemmaForCausalLM":
             state_dict = convert_gemma_weights(hf_model, cfg)
         elif cfg.original_architecture == "Gemma2ForCausalLM":
+            state_dict = convert_gemma_weights(hf_model, cfg)
+        elif cfg.original_architecture == "Gemma3ForCausalLM":
             state_dict = convert_gemma_weights(hf_model, cfg)
         else:
             raise ValueError(
