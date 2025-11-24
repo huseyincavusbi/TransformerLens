@@ -1490,7 +1490,8 @@ def convert_hf_model_config(model_name: str, **kwargs: Any):
             "act_fn": "gelu_pytorch_tanh",
             "initializer_range": 0.02,
             "normalization_type": "RMS",
-            "rotary_base": 1000000,
+            "rotary_base": 1000000,  # Global attention layers
+            "rotary_base_local": 10000,  # Local attention layers (per Gemma 3 paper)
             "positional_embedding_type": "rotary",
             "use_attn_scale": True,
             "n_key_value_heads": 1,
@@ -1516,7 +1517,8 @@ def convert_hf_model_config(model_name: str, **kwargs: Any):
             "act_fn": "gelu_pytorch_tanh",
             "initializer_range": 0.02,
             "normalization_type": "RMS",
-            "rotary_base": 1000000,
+            "rotary_base": 1000000,  # Global attention layers
+            "rotary_base_local": 10000,  # Local attention layers (per Gemma 3 paper)
             "positional_embedding_type": "rotary",
             "use_attn_scale": True,
             "n_key_value_heads": 1,
@@ -1542,7 +1544,8 @@ def convert_hf_model_config(model_name: str, **kwargs: Any):
             "act_fn": "gelu_pytorch_tanh",
             "initializer_range": 0.02,
             "normalization_type": "RMS",
-            "rotary_base": 1000000,
+            "rotary_base": 1000000,  # Global attention layers
+            "rotary_base_local": 10000,  # Local attention layers (per Gemma 3 paper)
             "positional_embedding_type": "rotary",
             "use_attn_scale": True,
             "n_key_value_heads": 4,
@@ -1568,7 +1571,8 @@ def convert_hf_model_config(model_name: str, **kwargs: Any):
             "act_fn": "gelu_pytorch_tanh",
             "initializer_range": 0.02,
             "normalization_type": "RMS",
-            "rotary_base": 1000000,
+            "rotary_base": 1000000,  # Global attention layers
+            "rotary_base_local": 10000,  # Local attention layers (per Gemma 3 paper)
             "positional_embedding_type": "rotary",
             "use_attn_scale": True,
             "n_key_value_heads": 8,
@@ -1595,7 +1599,8 @@ def convert_hf_model_config(model_name: str, **kwargs: Any):
             "act_fn": "gelu_pytorch_tanh",
             "initializer_range": 0.02,
             "normalization_type": "RMS",
-            "rotary_base": 1000000,
+            "rotary_base": 1000000,  # Global attention layers
+            "rotary_base_local": 10000,  # Local attention layers (per Gemma 3 paper)
             "positional_embedding_type": "rotary",
             "use_attn_scale": True,
             "n_key_value_heads": 16,

@@ -137,10 +137,15 @@ class AbstractAttention(ABC, nn.Module):
             self.hook_rot_q = HookPoint()
             if self.cfg.rotary_dim is None:  # keep mypy happy
                 raise ValueError("Rotary dim must be provided for rotary positional embeddings")
+            # Use per-layer RoPE base if specified (e.g., Gemma 3 uses 10k for local, 1M for global)
+            if self.cfg.rotary_base_local is not None and self.attn_type == "local":
+                rope_base = self.cfg.rotary_base_local
+            else:
+                rope_base = self.cfg.rotary_base
             sin, cos = self.calculate_sin_cos_rotary(
                 self.cfg.rotary_dim,
                 self.cfg.n_ctx,
-                base=self.cfg.rotary_base,
+                base=rope_base,
                 dtype=self.cfg.dtype,
             )
             self.register_buffer("rotary_sin", sin)
