@@ -15,11 +15,16 @@ def convert_gemma_weights(gemma, cfg: HookedTransformerConfig):
     is_multimodal = hasattr(gemma, 'language_model')
     
     # Get the actual model
-    # For multimodal: gemma.language_model is Gemma3TextModel which has layers/embed_tokens directly
+    # For multimodal: gemma.language_model.model is Gemma3TextModel which has layers/embed_tokens
     # For text-only: gemma has .model which contains layers/embed_tokens
     if is_multimodal:
-        # Gemma3TextModel has layers, embed_tokens, norm directly (no .model wrapper)
-        base_model = gemma.language_model
+        # Multimodal structure: gemma.language_model.model contains the text transformer
+        # We skip gemma.vision_tower entirely to save memory
+        if hasattr(gemma.language_model, 'model'):
+            base_model = gemma.language_model.model
+        else:
+            # Fallback if structure is different
+            base_model = gemma.language_model
     else:
         # Text-only Gemma3ForCausalLM has .model wrapper
         base_model = gemma.model

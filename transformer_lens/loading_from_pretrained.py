@@ -1468,7 +1468,7 @@ def convert_hf_model_config(model_name: str, **kwargs: Any):
             "n_heads": 4,
             "d_mlp": 2048,
             "n_layers": 18,
-            "n_ctx": 32768,
+            "n_ctx": 8192,  # Safe default (model supports up to 32K). Override: cfg_kwargs={"n_ctx": 32768}
             "eps": 1e-06,
             "d_vocab": 262144,
             "act_fn": "gelu_pytorch_tanh",
@@ -1491,7 +1491,7 @@ def convert_hf_model_config(model_name: str, **kwargs: Any):
             "n_heads": 4,
             "d_mlp": 6912,
             "n_layers": 26,
-            "n_ctx": 32768,
+            "n_ctx": 8192,  # Safe default (model supports up to 32K). Override: cfg_kwargs={"n_ctx": 32768}
             "eps": 1e-06,
             "d_vocab": 262144,
             "act_fn": "gelu_pytorch_tanh",
@@ -1514,7 +1514,7 @@ def convert_hf_model_config(model_name: str, **kwargs: Any):
             "n_heads": 8,
             "d_mlp": 10240,
             "n_layers": 34,
-            "n_ctx": 131072,
+            "n_ctx": 8192,  # Safe default (model supports up to 128K). Override: cfg_kwargs={"n_ctx": 131072}
             "eps": 1e-06,
             "d_vocab": 262208,
             "act_fn": "gelu_pytorch_tanh",
@@ -1735,6 +1735,7 @@ def get_pretrained_model_config(
     default_prepend_bos: Optional[bool] = None,
     dtype: torch.dtype = torch.float32,
     first_n_layers: Optional[int] = None,
+    n_ctx: Optional[int] = None,
     **kwargs: Any,
 ):
     """Returns the pretrained model config as an HookedTransformerConfig object.
@@ -1773,6 +1774,11 @@ def get_pretrained_model_config(
             so this empirically seems to give better results. Note that you can also locally override the default behavior
             by passing in prepend_bos=True/False when you call a method that processes the input string.
         dtype (torch.dtype, optional): The dtype to load the TransformerLens model in.
+        first_n_layers (int, optional): If specified, only load the first n layers of the model.
+        n_ctx (int, optional): Override the model's default context length. Useful for extending
+            context beyond the default safe value (e.g., using 16K or 32K for Gemma 3 models that
+            default to 8K for memory efficiency). Be aware that larger context lengths require
+            significantly more RAM.
         kwargs: Other optional arguments passed to HuggingFace's from_pretrained.
             Also given to other HuggingFace functions when compatible.
 
@@ -1863,6 +1869,10 @@ def get_pretrained_model_config(
             cfg_dict["rotary_base"] = hf_cfg.get("rope_theta", cfg_dict["rotary_base"])
     if first_n_layers is not None:
         cfg_dict["n_layers"] = first_n_layers
+    
+    if n_ctx is not None:
+        # User explicitly overrode the context length
+        cfg_dict["n_ctx"] = n_ctx
 
     cfg = HookedTransformerConfig.from_dict(cfg_dict)
     return cfg
@@ -1952,6 +1962,9 @@ def get_pretrained_state_dict(
         del kwargs["torch_dtype"]
     if "hf_token" in kwargs:
         del kwargs["hf_token"]
+    if "n_ctx" in kwargs:
+        # n_ctx is handled in get_pretrained_model_config, don't pass to HuggingFace
+        del kwargs["n_ctx"]
     if Path(official_model_name).exists():
         official_model_name = str(Path(official_model_name).resolve())
         logging.info(f"Loading model from local path {official_model_name}")
