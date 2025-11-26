@@ -50,6 +50,14 @@ jobs:
           - "3.9"
           - "3.10"
     steps:
+      - name: Free Disk Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          df -h
       - uses: actions/checkout@v3
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -93,6 +101,14 @@ jobs:
     name: Code Checks
     runs-on: ubuntu-latest
     steps:
+      - name: Free Disk Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          df -h
       - uses: actions/checkout@v3
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -165,6 +181,14 @@ jobs:
           - "Patchscopes_Generation_Demo"
           # - "T5"
     steps:
+      - name: Free Disk Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          df -h
       - uses: actions/checkout@v3
       - name: Install Poetry
         uses: snok/install-poetry@v1
