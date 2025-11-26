@@ -199,22 +199,24 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-          cache: "poetry"
-      - name: Re-use HuggingFace models cache
-        uses: actions/cache/restore@v3
-        with:
-          path: ~/.cache/huggingface/hub
-          key: ${{ runner.os }}-huggingface-models
+          # NOTE: Poetry cache disabled - causes huggingface-hub version conflicts
       - name: Install dependencies
         run: |
           poetry check --lock
           poetry install --sync --with dev,jupyter
-          # Force correct huggingface-hub version (transformers 4.46.3 requires <1.0)
-          poetry run pip install "huggingface-hub>=0.23.2,<1.0"
+      - name: Force correct huggingface-hub version
+        run: |
+          # transformers 4.46.3 requires huggingface-hub>=0.23.2,<1.0
+          poetry run pip uninstall -y huggingface-hub
+          poetry run pip install "huggingface-hub==0.26.2"
       - name: Verify huggingface-hub version
         run: |
-          poetry run pip show huggingface-hub | grep Version
-          poetry run python -c "import huggingface_hub; print(f'huggingface-hub version: {huggingface_hub.__version__}')"
+          VERSION=$(poetry run python -c "import huggingface_hub; print(huggingface_hub.__version__)")
+          echo "huggingface-hub version: $VERSION"
+          if [[ "$VERSION" == 1.* ]]; then
+            echo "ERROR: huggingface-hub version 1.x detected, but <1.0 is required!"
+            exit 1
+          fi
       - name: Install pandoc
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
