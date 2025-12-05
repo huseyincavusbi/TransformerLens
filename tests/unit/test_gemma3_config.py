@@ -9,7 +9,6 @@ Tests cover:
 """
 
 import pytest
-import torch
 from unittest import mock
 
 from transformer_lens.HookedTransformerConfig import HookedTransformerConfig

@@ -8,10 +8,8 @@ Tests cover:
 4. Device compatibility (MPS/CUDA)
 """
 
-import pytest
 import torch
 import torch.nn as nn
-from unittest import mock
 
 from transformer_lens.HookedTransformerConfig import HookedTransformerConfig
 from transformer_lens.pretrained.weight_conversions.gemma import convert_gemma_weights
