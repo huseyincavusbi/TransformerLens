@@ -1,3 +1,6 @@
+> **Merged into [v2.17.0](https://github.com/TransformerLensOrg/TransformerLens/releases/tag/v2.17.0)** - This fork's Gemma 3 & MedGemma support was integrated into the official release!
+
+
 # TransformerLens
 
 <!-- Status Icons -->
